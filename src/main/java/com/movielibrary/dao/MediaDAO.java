@@ -95,9 +95,11 @@ public class MediaDAO {
 
     /**
      * Lấy TỔNG SỐ bộ phim thỏa mãn điều kiện tìm kiếm và bộ lọc (để tính tổng số trang).
+     * BỔ SUNG: Cho phép search trên toàn bộ các cột (Title, Director, Casts, Country, Year, Type).
      */
     public int getTotalCount(String search, String filter) throws Exception {
-        String sql = "SELECT COUNT(*) FROM media WHERE LOWER(title) LIKE LOWER(?) ";
+        String sql = "SELECT COUNT(*) FROM media WHERE (LOWER(title) LIKE LOWER(?) OR LOWER(director) LIKE LOWER(?) OR LOWER(casts) LIKE LOWER(?) OR LOWER(country) LIKE LOWER(?) OR release_year LIKE ? OR type LIKE ?) ";
+
         if (filter != null && !filter.equalsIgnoreCase("All")) {
             sql += " AND genres LIKE ? ";
         }
@@ -105,9 +107,18 @@ public class MediaDAO {
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, "%" + (search == null ? "" : search) + "%");
+            String searchParam = "%" + (search == null ? "" : search.trim()) + "%";
+
+            // Gán param tìm kiếm đa cột
+            pstmt.setString(1, searchParam);
+            pstmt.setString(2, searchParam);
+            pstmt.setString(3, searchParam);
+            pstmt.setString(4, searchParam);
+            pstmt.setString(5, searchParam);
+            pstmt.setString(6, searchParam);
+
             if (filter != null && !filter.equalsIgnoreCase("All")) {
-                pstmt.setString(2, "%" + filter + "%");
+                pstmt.setString(7, "%" + filter + "%");
             }
 
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -120,16 +131,16 @@ public class MediaDAO {
     }
 
     /**
-     * Truy vấn danh sách Phim với đầy đủ tính năng: TÌM KIẾM, LỌC THỂ LOẠI, SẮP XẾP, PHÂN TRANG.
+     * Truy vấn danh sách Phim với đầy đủ tính năng: TÌM KIẾM ĐA CHIỀU, LỌC THỂ LOẠI, SẮP XẾP, PHÂN TRANG.
      */
     public List<Media> getPagedMedia(String search, String filter, String sort, int page, int itemsPerPage) throws Exception {
         List<Media> list = new ArrayList<>();
         int offset = (page - 1) * itemsPerPage;
 
-        // Câu lệnh SQL LEFT JOIN để tính Rating trung bình cho từng phim
+        // Bổ sung điều kiện OR cho toàn bộ các trường (Title, Director, Casts, Country, Year, Type)
         String sql = "SELECT m.*, COALESCE(AVG(r.rating), 0) AS avg_rating " +
                 "FROM media m LEFT JOIN reviews r ON m.id = r.media_id " +
-                "WHERE LOWER(m.title) LIKE LOWER(?) ";
+                "WHERE (LOWER(m.title) LIKE LOWER(?) OR LOWER(m.director) LIKE LOWER(?) OR LOWER(m.casts) LIKE LOWER(?) OR LOWER(m.country) LIKE LOWER(?) OR m.release_year LIKE ? OR m.type LIKE ?) ";
 
         if (filter != null && !filter.equalsIgnoreCase("All")) {
             sql += " AND m.genres LIKE ? ";
@@ -152,11 +163,18 @@ public class MediaDAO {
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
+            String searchParam = "%" + (search == null ? "" : search.trim()) + "%";
             int paramIndex = 1;
-            // Tham số Tìm kiếm
-            pstmt.setString(paramIndex++, "%" + (search == null ? "" : search) + "%");
 
-            // Tham số Bộ lọc
+            // Tham số Tìm kiếm đa cột
+            pstmt.setString(paramIndex++, searchParam); // title
+            pstmt.setString(paramIndex++, searchParam); // director
+            pstmt.setString(paramIndex++, searchParam); // casts
+            pstmt.setString(paramIndex++, searchParam); // country
+            pstmt.setString(paramIndex++, searchParam); // release_year
+            pstmt.setString(paramIndex++, searchParam); // type
+
+            // Tham số Bộ lọc Thể loại
             if (filter != null && !filter.equalsIgnoreCase("All")) {
                 pstmt.setString(paramIndex++, "%" + filter + "%");
             }

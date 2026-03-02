@@ -43,20 +43,21 @@ public class MediaListController {
     }
 
     /**
-     * Hàm này được MediaDetailController gọi khi người dùng click vào một Tag Thể loại.
-     * Nó sẽ reset Search, đưa trang về 1 và thiết lập Filter tương ứng.
+     * Hàm này được MediaDetailController gọi khi người dùng click vào một Filter Tag bất kỳ.
+     * Thay vì chỉ set Genre như cũ, ta sẽ gán từ khóa vào ô Tìm kiếm (Search)
+     * để DAO có thể tìm trên toàn bộ các cột (Title, Director, Casts, Year...).
      */
-    public static void setFilterFromOutside(String genre) {
-        currentFilter = genre;
-        currentSearch = "";
-        currentPage = 1;
+    public static void setFilterFromOutside(String keyword) {
+        currentSearch = keyword; // Gắn tag được click vào thanh tìm kiếm
+        currentFilter = "All";   // Reset combo box thể loại về All để mở rộng phạm vi
+        currentPage = 1;         // Luôn đưa về trang 1
     }
 
     @FXML
     public void initialize() {
         setupComboBoxes();
 
-        // Phục hồi lại State trên UI (cho trường hợp ấn Back từ trang chi tiết về)
+        // Phục hồi lại State trên UI (cho trường hợp ấn Back từ trang chi tiết về, hoặc nhảy từ click Tag)
         txtSearch.setText(currentSearch);
         cbFilterGenre.setValue(currentFilter);
         cbSort.setValue(currentSort);

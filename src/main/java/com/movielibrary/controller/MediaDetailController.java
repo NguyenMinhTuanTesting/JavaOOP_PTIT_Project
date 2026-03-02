@@ -8,6 +8,7 @@ import com.movielibrary.service.ReviewService;
 import com.movielibrary.util.AlertUtil;
 import com.movielibrary.util.SessionManager;
 
+import javafx.animation.ScaleTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -19,6 +20,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,8 +31,10 @@ public class MediaDetailController {
     public static String selectedMediaId = null;
 
     @FXML private ImageView imgPoster;
-    @FXML private Label lblTitle, lblType, lblYear, lblDuration, lblCountry, lblDirector, lblCast, lblDescription, lblRating;
-    @FXML private FlowPane genreTagsPane;
+    @FXML private Label lblTitle, lblDuration, lblDescription, lblRating;
+
+    // Đã thay thế Label cứng bằng FlowPane để chứa Tag động
+    @FXML private FlowPane paneType, paneYear, genreTagsPane, paneCountry, paneDirector, paneCast;
 
     // Vùng chứa danh sách Review và Form thêm Review
     @FXML private VBox reviewListContainer;
@@ -77,27 +81,36 @@ public class MediaDetailController {
             if (currentMedia == null) return;
 
             lblTitle.setText(currentMedia.getTitle());
-            lblType.setText(currentMedia.getType());
-            lblYear.setText(String.valueOf(currentMedia.getReleaseYear()));
 
-            // Xử lý Duration (Phút) hoặc Episodes (Số tập)
+            // Tải hình ảnh an toàn
+            if (currentMedia.getPosterUrl() != null && !currentMedia.getPosterUrl().isEmpty()) {
+                Image image = new Image(currentMedia.getPosterUrl(), true);
+                imgPoster.setImage(image);
+            }
+
+            // Xử lý Duration (Phút) hoặc Episodes (Số tập) - Giữ nguyên không làm thành Tag
             String durationText = currentMedia.getType().equalsIgnoreCase("MOVIE")
                     ? currentMedia.getDuration() + " Phút"
                     : currentMedia.getEpisodes() + " Tập";
             lblDuration.setText(durationText);
 
-            lblCountry.setText(currentMedia.getCountry());
-            lblDirector.setText(currentMedia.getDirector());
-            lblCast.setText(currentMedia.getCasts());
             lblDescription.setText(currentMedia.getDescription());
 
-            // Tải hình ảnh an toàn, không làm crash app nếu link URL lỗi
-            if (currentMedia.getPosterUrl() != null && !currentMedia.getPosterUrl().isEmpty()) {
-                Image image = new Image(currentMedia.getPosterUrl(), true); // true = load background
-                imgPoster.setImage(image);
-            }
+            // --- BƠM DỮ LIỆU THÀNH CÁC FILTER TAG ---
 
-            // Xử lý chuỗi Tag Thể loại (Genre) thành các Nút bấm
+            // 1. Tag Type (Bảo toàn style nền xanh cũ)
+            populateTagLabels(paneType, currentMedia.getType(),
+                    "-fx-background-color: #007bff; -fx-text-fill: white; -fx-padding: 3 8; -fx-background-radius: 3; -fx-font-weight: bold;", null);
+
+            // 2. Tag Year
+            populateTagLabels(paneYear, String.valueOf(currentMedia.getReleaseYear()), null, "label-info");
+
+            // 3. Tag Country, Director, Cast
+            populateTagLabels(paneCountry, currentMedia.getCountry(), "-fx-text-fill: #c9d1d9;", null);
+            populateTagLabels(paneDirector, currentMedia.getDirector(), "-fx-text-fill: #c9d1d9;", null);
+            populateTagLabels(paneCast, currentMedia.getCasts(), "-fx-text-fill: #c9d1d9;", null);
+
+            // 4. Tag Genre (Nút bấm như cũ nhưng có thêm hover animation)
             genreTagsPane.getChildren().clear();
             if (currentMedia.getGenres() != null && !currentMedia.getGenres().isEmpty()) {
                 String[] genres = currentMedia.getGenres().split(";");
@@ -105,7 +118,8 @@ public class MediaDetailController {
                     String cleanGenre = genre.trim();
                     Button btnTag = new Button(cleanGenre);
                     btnTag.getStyleClass().add("tag-button");
-                    btnTag.setOnAction(e -> handleGenreClick(cleanGenre));
+                    setupHoverAnimation(btnTag);
+                    btnTag.setOnAction(e -> handleTagClick(cleanGenre));
                     genreTagsPane.getChildren().add(btnTag);
                 }
             }
@@ -124,6 +138,67 @@ public class MediaDetailController {
         }
     }
 
+    /**
+     * Tách chuỗi dữ liệu (phân cách bằng dấu chấm phẩy) thành các Label Tag có chức năng click và hiệu ứng.
+     */
+    private void populateTagLabels(FlowPane pane, String data, String inlineStyle, String styleClass) {
+        pane.getChildren().clear();
+        if (data == null || data.trim().isEmpty()) {
+            Label empty = new Label("N/A");
+            empty.setStyle("-fx-text-fill: #c9d1d9;");
+            pane.getChildren().add(empty);
+            return;
+        }
+
+        String[] items = data.split(";");
+        for (String item : items) {
+            String cleanItem = item.trim();
+            if (!cleanItem.isEmpty()) {
+                Label lbl = new Label(cleanItem);
+
+                // Kế thừa style cũ và thêm con trỏ chuột bàn tay
+                String finalStyle = "-fx-cursor: hand;";
+                if (inlineStyle != null) finalStyle = inlineStyle + " " + finalStyle;
+                lbl.setStyle(finalStyle);
+
+                if (styleClass != null) lbl.getStyleClass().add(styleClass);
+
+                setupHoverAnimation(lbl);
+                lbl.setOnMouseClicked(e -> handleTagClick(cleanItem));
+
+                pane.getChildren().add(lbl);
+            }
+        }
+    }
+
+    /**
+     * Tạo Animation phóng to và làm mờ nhẹ khi đưa chuột vào Tag.
+     */
+    private void setupHoverAnimation(Node node) {
+        ScaleTransition scaleIn = new ScaleTransition(Duration.millis(150), node);
+        scaleIn.setToX(1.05);
+        scaleIn.setToY(1.05);
+
+        ScaleTransition scaleOut = new ScaleTransition(Duration.millis(150), node);
+        scaleOut.setToX(1.0);
+        scaleOut.setToY(1.0);
+
+        node.setOnMouseEntered(e -> {
+            scaleIn.playFromStart();
+            node.setOpacity(0.8);
+        });
+        node.setOnMouseExited(e -> {
+            scaleOut.playFromStart();
+            node.setOpacity(1.0);
+        });
+    }
+
+    private void handleTagClick(String keyword) {
+        // Requirement: Click Tag -> Chuyển về List Page, Áp dụng filter, Reset Page 1
+        MediaListController.setFilterFromOutside(keyword);
+        handleBack();
+    }
+
     private void loadReviews() {
         reviewListContainer.getChildren().clear();
         try {
@@ -136,7 +211,6 @@ public class MediaDetailController {
                 return;
             }
 
-            // Khởi tạo từng Review Item bọc trong FXML con
             for (Review r : reviews) {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/movielibrary/fxml/ReviewItem.fxml"));
                 Node reviewNode = loader.load();
@@ -155,14 +229,12 @@ public class MediaDetailController {
     private void checkAndSetupReviewForm() {
         User currentUser = SessionManager.getInstance().getCurrentUser();
 
-        // Theo Requirement: Không hiện Form Review cho Guest
         if (currentUser == null) {
             hideReviewForm();
             return;
         }
 
         try {
-            // Theo Requirement: Không hiện Form Review nếu User đã review phim này rồi
             boolean hasReviewed = reviewService.hasUserReviewed(currentUser.getId(), selectedMediaId);
             if (hasReviewed) {
                 hideReviewForm();
@@ -177,7 +249,7 @@ public class MediaDetailController {
 
     private void hideReviewForm() {
         reviewFormContainer.setVisible(false);
-        reviewFormContainer.setManaged(false); // Xóa khoảng trống của VBox khỏi Layout
+        reviewFormContainer.setManaged(false);
     }
 
     private void showReviewForm() {
@@ -210,7 +282,6 @@ public class MediaDetailController {
         try {
             reviewService.addReview(review);
             AlertUtil.showInfo("Thành công", "Đánh giá của bạn đã được ghi nhận.");
-            // Theo requirement: Cập nhật lại Rating Avg và Ẩn form vĩnh viễn
             loadMediaDetails();
             loadReviews();
             checkAndSetupReviewForm();
@@ -221,16 +292,8 @@ public class MediaDetailController {
 
     @FXML
     private void handleBack() {
-        // Trở về trang danh sách thông qua MainLayoutController
-        // Các state như Search, Sort, Pagination đang được giữ tĩnh ở MediaListController
         if (MainLayoutController.getInstance() != null) {
             MainLayoutController.getInstance().loadCenterContent("/com/movielibrary/fxml/MediaList.fxml");
         }
-    }
-
-    private void handleGenreClick(String genre) {
-        // Requirement: Click Tag -> Chuyển về List Page, Áp dụng filter, Reset Page 1
-        MediaListController.setFilterFromOutside(genre);
-        handleBack();
     }
 }

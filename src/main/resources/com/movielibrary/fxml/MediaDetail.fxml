@@ -43,8 +43,8 @@
 
                                 <HBox alignment="CENTER_LEFT" spacing="15.0">
                                     <children>
-                                        <Label fx:id="lblType" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-padding: 3 8; -fx-background-radius: 3; -fx-font-weight: bold;" text="MOVIE" />
-                                        <Label fx:id="lblYear" styleClass="label-info" text="2026" />
+                                        <FlowPane fx:id="paneType" alignment="CENTER_LEFT" />
+                                        <FlowPane fx:id="paneYear" alignment="CENTER_LEFT" />
                                         <Label text="•" textFill="#8b949e" />
                                         <Label fx:id="lblDuration" styleClass="label-info" text="120 Phút" />
                                     </children>
@@ -58,15 +58,15 @@
 
                                 <HBox spacing="10.0">
                                     <Label styleClass="label-info" text="Quốc gia:" />
-                                    <Label fx:id="lblCountry" style="-fx-text-fill: #c9d1d9;" text="Mỹ" />
+                                    <FlowPane fx:id="paneCountry" hgap="5.0" vgap="5.0" />
                                 </HBox>
                                 <HBox spacing="10.0">
                                     <Label styleClass="label-info" text="Đạo diễn:" />
-                                    <Label fx:id="lblDirector" style="-fx-text-fill: #c9d1d9;" text="N/A" />
+                                    <FlowPane fx:id="paneDirector" hgap="5.0" vgap="5.0" />
                                 </HBox>
                                 <HBox spacing="10.0">
                                     <Label styleClass="label-info" text="Diễn viên:" />
-                                    <Label fx:id="lblCast" style="-fx-text-fill: #c9d1d9;" text="N/A" wrapText="true" />
+                                    <FlowPane fx:id="paneCast" hgap="5.0" vgap="5.0" />
                                 </HBox>
 
                                 <Label style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16px;" text="Nội dung phim:">
