@@ -1,0 +1,143 @@
+/* --- BIẾN TOÀN CỤC & NỀN --- */
+.root {
+    -fx-background-color: #0d1117; /* Đen sâu */
+    -fx-font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    -fx-font-size: 14px;
+}
+
+/* --- HEADER BAR (Thanh điều hướng trên cùng) --- */
+.header-bar {
+    -fx-background-color: #161b22; /* Xám đen nhạt hơn nền */
+    -fx-padding: 15px 20px;
+    -fx-border-color: transparent transparent #007bff transparent; /* Viền dưới xanh dương */
+    -fx-border-width: 0 0 2px 0;
+}
+
+.header-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #007bff; /* Xanh dương */
+}
+
+.header-welcome {
+    -fx-text-fill: #c9d1d9; /* Trắng xám */
+    -fx-font-size: 14px;
+}
+
+/* --- NÚT BẤM CHUNG (Buttons) --- */
+.button {
+    -fx-background-color: #007bff;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5px;
+    -fx-padding: 8px 15px;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: #0056b3;
+}
+
+/* Nút Đăng xuất (Đổi sang màu đỏ đô để cảnh báo) */
+.btn-logout {
+    -fx-background-color: #da3633;
+}
+.btn-logout:hover {
+    -fx-background-color: #a42624;
+}
+
+/* Nút phụ (Secondary) */
+.btn-secondary {
+    -fx-background-color: #21262d;
+    -fx-text-fill: #c9d1d9;
+    -fx-border-color: #30363d;
+    -fx-border-radius: 5px;
+}
+.btn-secondary:hover {
+    -fx-background-color: #30363d;
+}
+
+/* Nút Tag Thể loại (Genre Tags) */
+.tag-button {
+    -fx-background-color: #1f2937;
+    -fx-text-fill: #58a6ff; /* Xanh dương nhạt */
+    -fx-border-color: #58a6ff;
+    -fx-border-radius: 15px;
+    -fx-background-radius: 15px;
+    -fx-padding: 4px 12px;
+    -fx-font-size: 12px;
+}
+.tag-button:hover {
+    -fx-background-color: #58a6ff;
+    -fx-text-fill: #0d1117;
+}
+
+/* --- INPUT & COMBOBOX (Form nhập liệu) --- */
+.text-field, .password-field, .text-area {
+    -fx-background-color: #0d1117;
+    -fx-text-fill: #c9d1d9;
+    -fx-border-color: #30363d;
+    -fx-border-radius: 5px;
+    -fx-padding: 8px;
+}
+.text-field:focused, .password-field:focused, .text-area:focused {
+    -fx-border-color: #007bff;
+}
+
+.combo-box {
+    -fx-background-color: #21262d;
+    -fx-border-color: #30363d;
+    -fx-border-radius: 5px;
+}
+.combo-box .list-cell {
+    -fx-text-fill: #c9d1d9;
+}
+.combo-box .list-view {
+    -fx-background-color: #21262d;
+}
+.combo-box .list-cell:hover {
+    -fx-background-color: #007bff;
+    -fx-text-fill: white;
+}
+
+/* --- MEDIA CARD (Thẻ hiển thị phim) --- */
+.media-card {
+    -fx-background-color: #161b22;
+    -fx-background-radius: 8px;
+    -fx-padding: 10px;
+    -fx-cursor: hand;
+    -fx-border-color: #30363d;
+    -fx-border-radius: 8px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 10, 0, 0, 5);
+}
+.media-card:hover {
+    -fx-border-color: #007bff;
+    -fx-translate-y: -5px; /* Hiệu ứng nảy nhẹ lên khi hover */
+}
+.media-card .label {
+    -fx-text-fill: #c9d1d9;
+}
+
+/* --- TEXT CHUNG (Typography) --- */
+.label-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+.label-info {
+    -fx-text-fill: #8b949e;
+    -fx-font-size: 13px;
+}
+.label-highlight {
+    -fx-text-fill: #58a6ff;
+    -fx-font-weight: bold;
+}
+
+/* --- REVIEW ITEM (Hộp bình luận) --- */
+.review-box {
+    -fx-background-color: #161b22;
+    -fx-padding: 15px;
+    -fx-background-radius: 8px;
+    -fx-border-color: #30363d;
+    -fx-border-radius: 8px;
+}
