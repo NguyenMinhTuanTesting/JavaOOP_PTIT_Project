@@ -17,12 +17,63 @@
 
 # ⚙️ YÊU CẦU HỆ THỐNG
 
-Trước khi chạy dự án, vui lòng cài đặt:
+Trước khi chạy dự án, vui lòng đảm bảo máy đã cài đặt:
 
 1. JDK 25  
-2. Maven (phiên bản mới nhất)  
-3. MySQL Server (phiên bản mới nhất)  
+2. Maven  
+3. MySQL Server  
 4. MySQL Workbench (khuyến khích)
+
+---
+
+# 📥 HƯỚNG DẪN TẢI PHẦN MỀM (NẾU CHƯA CÀI)
+
+## 1️⃣ MySQL Server
+
+Nếu máy chưa có MySQL, tải tại:
+
+👉 https://dev.mysql.com/downloads/installer/
+
+Cài đặt theo mặc định và ghi nhớ:
+- Username (thường là root)
+- Password bạn tự đặt
+- Port (mặc định 3306)
+
+---
+
+## 2️⃣ MySQL Workbench
+
+Tải tại:
+
+👉 https://dev.mysql.com/downloads/workbench/
+
+Dùng để import schema và quản lý database dễ dàng hơn.
+
+---
+
+## 3️⃣ Maven
+
+Nếu máy chưa có Maven, tải tại:
+
+👉 https://maven.apache.org/download.cgi
+
+Chọn:
+
+```
+Binary zip archive (bin.zip)
+```
+
+Sau khi tải:
+- Giải nén
+- Thêm thư mục `bin` vào biến môi trường PATH
+
+Kiểm tra bằng lệnh:
+
+```bash
+mvn -v
+```
+
+Nếu hiển thị phiên bản → cài đặt thành công.
 
 ---
 
@@ -30,7 +81,7 @@ Trước khi chạy dự án, vui lòng cài đặt:
 
 ## Bước 1: Khởi động MySQL
 
-Đảm bảo MySQL Server đang chạy trên máy.
+Đảm bảo MySQL Server đang chạy.
 
 ---
 
@@ -47,19 +98,19 @@ USE movie_library;
 
 ## Bước 3: Import Schema
 
-1. Mở file SQL schema được cung cấp trong repository.
+1. Mở file SQL schema trong repository.
 2. Chạy toàn bộ script để tạo các bảng:
    - users
    - media
    - reviews
 
-Đảm bảo tất cả bảng được tạo thành công trước khi chạy ứng dụng.
+Đảm bảo tất cả bảng được tạo thành công.
 
 ---
 
 # ⚠️ CẤU HÌNH KẾT NỐI DATABASE
 
-File cấu hình nằm tại:
+File cấu hình:
 
 ```
 src/main/java/com/movielibrary/config/DatabaseConfig.java
@@ -77,19 +128,17 @@ private static final String PASSWORD = "****";
 
 ## 🔑 1️⃣ Đổi mật khẩu MySQL
 
-Thay dòng:
+Thay:
 
 ```java
 private static final String PASSWORD = "****";
 ```
 
-Bằng mật khẩu MySQL bạn đã đặt khi cài:
+Bằng mật khẩu MySQL bạn đã đặt:
 
 ```java
 private static final String PASSWORD = "mat_khau_mysql_cua_ban";
 ```
-
-⚠️ Mật khẩu này phải trùng với mật khẩu MySQL trên máy bạn.
 
 ---
 
@@ -101,13 +150,9 @@ Mặc định MySQL sử dụng:
 3306
 ```
 
-Nếu máy bạn không bị xung đột cổng → giữ nguyên 3306.
+Nếu không có xung đột → giữ nguyên 3306.
 
----
-
-### ❗ Nếu 3306 bị xung đột
-
-Nếu MySQL của bạn chạy trên cổng khác (ví dụ 3307), sửa dòng:
+Nếu MySQL chạy trên cổng khác (ví dụ 3307), sửa:
 
 ```java
 jdbc:mysql://localhost:3306/movie_library
@@ -119,26 +164,18 @@ Thành:
 jdbc:mysql://localhost:3307/movie_library
 ```
 
-✔ Nếu không có xung đột → nên giữ 3306.
-
 ---
 
 # ▶️ CHẠY ỨNG DỤNG
 
-Sau khi:
-
-- Tạo database
-- Import schema
-- Cập nhật mật khẩu (nếu cần)
-
-Mở Terminal tại thư mục gốc của project và chạy:
+Sau khi hoàn tất các bước trên, mở Terminal tại thư mục project và chạy:
 
 ```bash
 mvn clean install
 mvn javafx:run
 ```
 
-Ứng dụng sẽ tự động khởi động.
+Ứng dụng sẽ khởi động.
 
 ---
 
@@ -150,44 +187,47 @@ mvn javafx:run
 src/main/resources/data/Media_Data.csv
 ```
 
-- Sử dụng `INSERT IGNORE` → không bị trùng dữ liệu nếu chạy nhiều lần.
+- Sử dụng `INSERT IGNORE` để tránh trùng dữ liệu.
 
 ---
 
-# 🔐 ĐĂNG NHẬP
+# 🔐 LƯU Ý VỀ TRẢI NGHIỆM ỨNG DỤNG
 
-Người dùng có thể:
+Do hệ thống lưu trữ bình luận và đánh giá phim hoàn toàn trên database local, nên khi chạy trên máy mới:
 
-- Đăng ký tài khoản mới
-- Đăng nhập
-- Sử dụng chế độ Guest
+- Database sẽ không có sẵn tài khoản hoặc đánh giá mẫu.
+- Người dùng cần tự tạo tài khoản mới.
 
-Mật khẩu được mã hóa bằng BCrypt trước khi lưu vào database.
+👉 Để trải nghiệm đầy đủ tính năng:
+
+1. Tạo ít nhất 2 tài khoản người dùng.
+2. Đăng nhập từng tài khoản và thực hiện đánh giá phim.
+3. Kiểm tra chức năng:
+   - Hiển thị danh sách đánh giá
+   - Phân quyền người dùng
+   - Hiển thị đánh giá theo từng tài khoản
+
+Việc này giúp kiểm tra đầy đủ các chức năng liên quan đến hệ thống review và quản lý người dùng.
 
 ---
 
 # ❓ KHẮC PHỤC LỖI THƯỜNG GẶP
 
----
+### 1️⃣ Access denied for user 'root'
 
-### 1️⃣ Lỗi: Access denied for user 'root'
-
-✔ Kiểm tra:
-- Đúng mật khẩu trong DatabaseConfig.java
+- Kiểm tra đúng mật khẩu
 - MySQL đang chạy
 
 ---
 
-### 2️⃣ Lỗi: Communications link failure
+### 2️⃣ Communications link failure
 
-✔ Kiểm tra:
-- Đúng port
+- Kiểm tra đúng port
 - MySQL đang hoạt động
-- Không bị firewall chặn
 
 ---
 
-### 3️⃣ Lỗi: Unknown database 'movie_library'
+### 3️⃣ Unknown database 'movie_library'
 
 Chạy lại:
 
@@ -197,15 +237,13 @@ CREATE DATABASE movie_library;
 
 ---
 
-### 4️⃣ Lỗi: Thiếu dependency
+### 4️⃣ Maven không tải dependency
 
-Chạy:
+Chạy lại:
 
 ```bash
 mvn clean install
 ```
-
-Maven sẽ tự động tải thư viện từ pom.xml.
 
 ---
 
@@ -223,10 +261,10 @@ Maven sẽ tự động tải thư viện từ pom.xml.
 
 # 🎯 KẾT LUẬN
 
-Sau khi hoàn tất các bước trên, chỉ cần chạy:
+Chỉ cần làm đúng các bước trên và chạy:
 
 ```bash
 mvn javafx:run
 ```
 
-Ứng dụng sẽ hoạt động bình thường.
+Ứng dụng sẽ hoạt động bình thường trên môi trường local.
