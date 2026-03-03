@@ -7,9 +7,9 @@ import java.sql.SQLException;
 public class DatabaseConfig {
 
     // CẤU HÌNH KẾT NỐI DATABASE
-    private static final String URL = "jdbc:mysql://localhost:3307/movie_library?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+    private static final String URL = "jdbc:mysql://localhost:3306/movie_library?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
     private static final String USER = "root";
-    private static final String PASSWORD = "Weber@080804";
+    private static final String PASSWORD = "**********";
 
     /**
      * Khởi tạo và trả về một đối tượng Connection kết nối tới MySQL.
