@@ -6,6 +6,7 @@ import com.movielibrary.model.User;
 import com.movielibrary.service.MediaService;
 import com.movielibrary.service.ReviewService;
 import com.movielibrary.util.AlertUtil;
+import com.movielibrary.util.ImageLoaderUtil;
 import com.movielibrary.util.SessionManager;
 
 import javafx.animation.ScaleTransition;
@@ -16,7 +17,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextArea;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
@@ -27,20 +27,16 @@ import java.util.List;
 
 public class MediaDetailController {
 
-    // Biến lưu trữ ID phim được chọn từ màn hình MediaList truyền sang
     public static String selectedMediaId = null;
 
     @FXML private ImageView imgPoster;
     @FXML private Label lblTitle, lblDuration, lblDescription, lblRating;
 
-    // Đã thay thế Label cứng bằng FlowPane để chứa Tag động
     @FXML private FlowPane paneType, paneYear, genreTagsPane, paneCountry, paneDirector, paneCast;
 
-    // Vùng chứa danh sách Review và Form thêm Review
     @FXML private VBox reviewListContainer;
     @FXML private VBox reviewFormContainer;
 
-    // Các UI Control cho Form Review
     @FXML private Slider sliderRating;
     @FXML private Label lblRatingValue;
     @FXML private TextArea txtComment;
@@ -67,7 +63,6 @@ public class MediaDetailController {
         loadReviews();
         checkAndSetupReviewForm();
 
-        // Listener để cập nhật giá trị rating realtime từ Slider, ép bước nhảy 0.5
         sliderRating.valueProperty().addListener((observable, oldValue, newValue) -> {
             double rounded = Math.round(newValue.doubleValue() * 2) / 2.0;
             sliderRating.setValue(rounded);
@@ -82,13 +77,9 @@ public class MediaDetailController {
 
             lblTitle.setText(currentMedia.getTitle());
 
-            // Tải hình ảnh an toàn
-            if (currentMedia.getPosterUrl() != null && !currentMedia.getPosterUrl().isEmpty()) {
-                Image image = new Image(currentMedia.getPosterUrl(), true);
-                imgPoster.setImage(image);
-            }
+            // GỌI TIỆN ÍCH TẢI ẢNH MỚI (CHỈ 1 DÒNG)
+            ImageLoaderUtil.load(imgPoster, currentMedia.getPosterUrl(), 280, 400);
 
-            // Xử lý Duration (Phút) hoặc Episodes (Số tập) - Giữ nguyên không làm thành Tag
             String durationText = currentMedia.getType().equalsIgnoreCase("MOVIE")
                     ? currentMedia.getDuration() + " Phút"
                     : currentMedia.getEpisodes() + " Tập";
@@ -96,21 +87,13 @@ public class MediaDetailController {
 
             lblDescription.setText(currentMedia.getDescription());
 
-            // --- BƠM DỮ LIỆU THÀNH CÁC FILTER TAG ---
-
-            // 1. Tag Type (Bảo toàn style nền xanh cũ)
             populateTagLabels(paneType, currentMedia.getType(),
                     "-fx-background-color: #007bff; -fx-text-fill: white; -fx-padding: 3 8; -fx-background-radius: 3; -fx-font-weight: bold;", null);
-
-            // 2. Tag Year
             populateTagLabels(paneYear, String.valueOf(currentMedia.getReleaseYear()), null, "label-info");
-
-            // 3. Tag Country, Director, Cast
             populateTagLabels(paneCountry, currentMedia.getCountry(), "-fx-text-fill: #c9d1d9;", null);
             populateTagLabels(paneDirector, currentMedia.getDirector(), "-fx-text-fill: #c9d1d9;", null);
             populateTagLabels(paneCast, currentMedia.getCasts(), "-fx-text-fill: #c9d1d9;", null);
 
-            // 4. Tag Genre (Nút bấm như cũ nhưng có thêm hover animation)
             genreTagsPane.getChildren().clear();
             if (currentMedia.getGenres() != null && !currentMedia.getGenres().isEmpty()) {
                 String[] genres = currentMedia.getGenres().split(";");
@@ -124,7 +107,6 @@ public class MediaDetailController {
                 }
             }
 
-            // Tính toán và làm tròn Average Rating hiển thị lên UI
             double avgRating = reviewService.getAverageRating(selectedMediaId);
             if (avgRating > 0) {
                 double rounded = Math.round(avgRating * 2) / 2.0;
@@ -138,9 +120,6 @@ public class MediaDetailController {
         }
     }
 
-    /**
-     * Tách chuỗi dữ liệu (phân cách bằng dấu chấm phẩy) thành các Label Tag có chức năng click và hiệu ứng.
-     */
     private void populateTagLabels(FlowPane pane, String data, String inlineStyle, String styleClass) {
         pane.getChildren().clear();
         if (data == null || data.trim().isEmpty()) {
@@ -156,7 +135,6 @@ public class MediaDetailController {
             if (!cleanItem.isEmpty()) {
                 Label lbl = new Label(cleanItem);
 
-                // Kế thừa style cũ và thêm con trỏ chuột bàn tay
                 String finalStyle = "-fx-cursor: hand;";
                 if (inlineStyle != null) finalStyle = inlineStyle + " " + finalStyle;
                 lbl.setStyle(finalStyle);
@@ -171,9 +149,6 @@ public class MediaDetailController {
         }
     }
 
-    /**
-     * Tạo Animation phóng to và làm mờ nhẹ khi đưa chuột vào Tag.
-     */
     private void setupHoverAnimation(Node node) {
         ScaleTransition scaleIn = new ScaleTransition(Duration.millis(150), node);
         scaleIn.setToX(1.05);
@@ -194,7 +169,6 @@ public class MediaDetailController {
     }
 
     private void handleTagClick(String keyword) {
-        // Requirement: Click Tag -> Chuyển về List Page, Áp dụng filter, Reset Page 1
         MediaListController.setFilterFromOutside(keyword);
         handleBack();
     }

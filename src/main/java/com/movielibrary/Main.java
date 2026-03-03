@@ -34,6 +34,7 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
+        System.setProperty("http.agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
         // Lệnh khởi chạy vòng đời của một ứng dụng JavaFX
         launch(args);
     }
